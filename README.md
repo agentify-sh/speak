@@ -54,3 +54,7 @@ SwiftBar:
 
 - Speech reads an intelligent summary by default: skips code blocks, truncates very long IDs/identifiers, and stops before a `Test/Tests/Testing` section.
 - No credentials are stored; only the last response text and playback state.
+
+## License
+
+Apache-2.0 (see `LICENSE`).
