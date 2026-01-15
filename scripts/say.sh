@@ -20,7 +20,7 @@ PID_FILE="$RUNTIME_DIR/say.pid"
 UNTIL_FILE="$RUNTIME_DIR/say.until"
 
 VOICE="${CODEX_SAY_VOICE:-Samantha}"
-RATE="${CODEX_SAY_RATE:-210}"
+RATE="${CODEX_SAY_RATE:-315}"
 MAX_CHARS="${CODEX_SAY_MAX_CHARS:-8000}"
 SUMMARY_MAX_CHARS="${CODEX_SAY_SUMMARY_MAX_CHARS:-2400}"
 SUMMARY_MAX_BULLETS="${CODEX_SAY_SUMMARY_MAX_BULLETS:-15}"
@@ -337,7 +337,7 @@ if [[ -z "${summary_text//[[:space:]]/}" ]]; then
 fi
 
 full_text="$(printf '%s' "$full_text" | tr '\r' '\n')"
-summary_text="$(printf '%s' "$summary_text" | tr '\r' '\n' | sed -E 's/[[:space:]]+/ /g')"
+summary_text="$(printf '%s' "$summary_text" | tr '\r' '\n')"
 
 printf '%s\0%s' "$full_text" "$summary_text" | python3 -c 'import sys
 from pathlib import Path
@@ -360,9 +360,8 @@ fi
 
 if [[ "$MODE" == "full" ]]; then
   set_playing_until_for_text "$full_text"
-  (say -v "$VOICE" -r "$RATE" "$full_text" & echo $! > "$PID_FILE") >/dev/null 2>&1 || true
+  (say -v "$VOICE" -r "$RATE" -f "$LAST_FULL_FILE" & echo $! > "$PID_FILE") >/dev/null 2>&1 || true
 else
   set_playing_until_for_text "$summary_text"
-  (say -v "$VOICE" -r "$RATE" "$summary_text" & echo $! > "$PID_FILE") >/dev/null 2>&1 || true
+  (say -v "$VOICE" -r "$RATE" -f "$LAST_SUMMARY_FILE" & echo $! > "$PID_FILE") >/dev/null 2>&1 || true
 fi
-
