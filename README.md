@@ -79,12 +79,12 @@ uvx pocket-tts generate --help
 uvx pocket-tts serve
 ```
 
-Then in SwiftBar (or terminal) select `Engine: pocket`.
+Then in SwiftBar (or terminal) select the “Slow” engine (Pocket TTS).
 
 Pocket TTS caveats:
 - This project controls Pocket volume via the audio player (`afplay -v`), not system volume.
-- Speed is exposed via `~/.codex/say.sh speed …` and SwiftBar. For Pocket TTS this is best-effort: the script will pass `--speed`/`--rate` only if the installed `pocket-tts` CLI supports it.
-- You can force a re-detect of Pocket speed flag support via `~/.codex/say.sh pocket-speed reset`.
+- Pocket can feel “slow” because it has to generate audio before playback (CPU-dependent; expect a few to several seconds of lag on some machines).
+- Pocket does not expose a speech-rate option in the CLI; this project can only speed up/down playback rate (via `afplay -r`), which may affect pitch/quality. For the snappiest experience, prefer Apple `say` (“Fast”).
 
 ## License
 
