@@ -62,7 +62,7 @@ for v in alba marius javert jean fantine cosette eponine azelma; do
   if [[ "$engine" == "pocket" && "$pocket_voice" == "$v" ]]; then
     prefix="✓ "
   fi
-  echo "${prefix}${v} (Pocket) | bash=\"$SAY\" param1=\"select\" param2=\"pocket\" param3=\"$v\" terminal=false refresh=true"
+  echo "${prefix}${v} (Pocket) | bash=\"$SAY\" param1=\"select\" param2=\"pocket\" param3=\"$v\" param4=\"--preview\" terminal=false refresh=true"
 done
 
 echo "---"
