@@ -289,42 +289,12 @@ pocket_generate_wav() {
     : > "$POCKET_WAV_FILE" 2>/dev/null || true
     : > "$RUNTIME_DIR/tts_output.wav" 2>/dev/null || true
 
-    speed_flag="$(cat "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true)"
-    speed_flag="${speed_flag//$'\n'/}"
-    if [[ -z "${speed_flag:-}" ]]; then
-      if have_cmd pocket-tts; then
-        if pocket-tts generate --help 2>/dev/null | grep -q -- "--speed"; then
-          speed_flag="--speed"
-        elif pocket-tts generate --help 2>/dev/null | grep -q -- "--rate"; then
-          speed_flag="--rate"
-        else
-          speed_flag="none"
-        fi
-      elif have_cmd uvx; then
-        if uvx pocket-tts generate --help 2>/dev/null | grep -q -- "--speed"; then
-          speed_flag="--speed"
-        elif uvx pocket-tts generate --help 2>/dev/null | grep -q -- "--rate"; then
-          speed_flag="--rate"
-        else
-          speed_flag="none"
-        fi
-      else
-        speed_flag="none"
-      fi
-      printf '%s\n' "$speed_flag" > "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true
-    fi
-
-    speed_args=()
-    if [[ "$speed_flag" == "--speed" || "$speed_flag" == "--rate" ]]; then
-      speed_args=("$speed_flag" "$SPEED")
-    fi
-
     if have_cmd pocket-tts; then
-      pocket-tts generate --voice "$voice" --text "$text" "${speed_args[@]}" --output "$POCKET_WAV_FILE" >/dev/null 2>&1 || true
-      pocket-tts generate --voice "$voice" --text "$text" "${speed_args[@]}" >/dev/null 2>&1 || true
+      pocket-tts generate --voice "$voice" --text "$text" --output-path "$POCKET_WAV_FILE" --quiet >/dev/null 2>&1 || true
+      pocket-tts generate --voice "$voice" --text "$text" --quiet >/dev/null 2>&1 || true
     elif have_cmd uvx; then
-      uvx pocket-tts generate --voice "$voice" --text "$text" "${speed_args[@]}" --output "$POCKET_WAV_FILE" >/dev/null 2>&1 || true
-      uvx pocket-tts generate --voice "$voice" --text "$text" "${speed_args[@]}" >/dev/null 2>&1 || true
+      uvx pocket-tts generate --voice "$voice" --text "$text" --output-path "$POCKET_WAV_FILE" --quiet >/dev/null 2>&1 || true
+      uvx pocket-tts generate --voice "$voice" --text "$text" --quiet >/dev/null 2>&1 || true
     else
       exit 1
     fi
@@ -377,7 +347,7 @@ speak_text_file() {
         say -v "$VOICE" -r "$RATE" -o "$TTS_FILE" -f "$loop_file" >/dev/null 2>&1 || true
         afplay -v "$gain" "$TTS_FILE" & echo $! > "$PLAYER_PID_FILE"
       else
-        afplay -v "$gain" "$POCKET_WAV_FILE" & echo $! > "$PLAYER_PID_FILE"
+        afplay -v "$gain" -r "$SPEED" "$POCKET_WAV_FILE" & echo $! > "$PLAYER_PID_FILE"
       fi
       ppid="$(cat "$PLAYER_PID_FILE" 2>/dev/null || true)"
       ppid="${ppid//[[:space:]]/}"
@@ -895,17 +865,10 @@ case "$subcmd" in
   pocket-speed|pocket_speed)
     action="${2:-get}"
     if [[ "$action" == "reset" ]]; then
-      : > "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true
       echo "reset"
       exit 0
     fi
-    v="$(cat "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true)"
-    v="${v//$'\n'/}"
-    if [[ -z "${v:-}" ]]; then
-      echo "unknown"
-    else
-      echo "$v"
-    fi
+    echo "afplay"
     exit 0
     ;;
   speed)
