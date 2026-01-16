@@ -519,6 +519,24 @@ speed_preview() {
   ENGINE="$saved_engine"
 }
 
+preview_pocket_voice() {
+  local v="$1"
+  local tmp="$RUNTIME_DIR/say.voice.preview.txt"
+  local label="$v"
+  label="$(printf '%s' "$label" | python3 -c 'import sys
+s=sys.stdin.read().strip()
+if not s:
+  print("Pocket voice")
+  raise SystemExit
+print(s[:1].upper()+s[1:])
+')"
+  printf '%s\n' "Hello, this is ${label}." > "$tmp" 2>/dev/null || true
+  pending_set 0
+  stop_speech
+  set_playing_until_for_words 8 >/dev/null 2>&1 || true
+  speak_text_file "$tmp" 3 >/dev/null 2>&1 || true
+}
+
 stop_speech() {
   local pid=""
   pid="$(cat "$PID_FILE" 2>/dev/null || true)"
@@ -936,6 +954,9 @@ print(cur+step)
       if [[ -z "${v:-}" ]]; then exit 1; fi
       printf '%s\n' "pocket" > "$ENGINE_FILE" 2>/dev/null || true
       printf '%s\n' "$v" > "$POCKET_VOICE_FILE" 2>/dev/null || true
+      if [[ "${4:-}" == "--preview" ]]; then
+        preview_pocket_voice "$v" >/dev/null 2>&1 || true
+      fi
       echo "pocket:$v"
       exit 0
     fi
