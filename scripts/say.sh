@@ -444,6 +444,39 @@ volume_status() {
   fi
 }
 
+snapshot() {
+  local st="disabled"
+  if is_enabled; then st="enabled"; fi
+  local pl="idle"
+  if is_playing; then pl="playing"; fi
+  local rem="0"
+  rem="$(remaining_seconds 2>/dev/null || echo 0)"
+  local pend="0"
+  pend="$(pending_get 2>/dev/null || echo 0)"
+  local cfg=""
+  cfg="$(get_config_volume 2>/dev/null || true)"
+  local vol_label="system"
+  if [[ -n "${cfg:-}" ]]; then
+    vol_label="${cfg}%"
+  fi
+  local av=""
+  av="$(cat "$VOICE_FILE" 2>/dev/null || true)"
+  av="${av//$'\n'/}"
+  local pv=""
+  pv="$(cat "$POCKET_VOICE_FILE" 2>/dev/null || true)"
+  pv="${pv//$'\n'/}"
+  if [[ -z "${pv:-}" ]]; then pv="$POCKET_VOICE"; fi
+  echo "status=${st}"
+  echo "playing=${pl}"
+  echo "rem=${rem}"
+  echo "engine=${ENGINE}"
+  echo "speed=${SPEED}"
+  echo "vol=${vol_label}"
+  echo "pending=${pend}"
+  echo "apple_voice=${av:-$VOICE}"
+  echo "pocket_voice=${pv}"
+}
+
 volume_preview_at() {
   local v="$1"
   v="${v//[[:space:]]/}"
@@ -836,6 +869,10 @@ case "$subcmd" in
       exit 0
     fi
     pending_get
+    exit 0
+    ;;
+  snapshot)
+    snapshot
     exit 0
     ;;
   pocket-speed|pocket_speed)

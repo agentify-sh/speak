@@ -43,6 +43,17 @@ Or download from:
 
 ## Usage
 
+## SwiftBar usage
+
+SwiftBar basics:
+- Left click the menu bar title to toggle Play/Stop (or Enable when Off).
+- Right click (or click the title then open menu) to open the dropdown options.
+
+Title hints:
+- `Fast` = Apple `say` engine (low latency).
+- `Slow` = Pocket TTS engine (higher latency; CPU-dependent).
+- `q5` means 5 completions were queued while speech was already playing (it will speak the latest after the current one ends).
+
 Terminal controls:
 
 ```bash

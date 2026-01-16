@@ -5,35 +5,34 @@ SAY="$HOME/.codex/say.sh"
 
 status="disabled"
 playing="idle"
-vol=""
 rem="0"
-vol_status=""
 engine="apple"
-pocket_voice="alba"
-apple_voice=""
 speed="1"
+vol="system"
 pending="0"
+apple_voice="Samantha"
+pocket_voice="alba"
 if [[ -x "$SAY" ]]; then
-  status="$("$SAY" status 2>/dev/null || echo disabled)"
-  playing="$("$SAY" playing 2>/dev/null || echo idle)"
-  vol="$("$SAY" volume get 2>/dev/null || true)"
-  vol_status="$("$SAY" volume status 2>/dev/null || true)"
-  rem="$("$SAY" remaining 2>/dev/null || echo 0)"
-  engine="$("$SAY" engine 2>/dev/null || echo apple)"
-  pocket_voice="$("$SAY" pocket-voice 2>/dev/null || echo alba)"
-  apple_voice="$("$SAY" voice 2>/dev/null || true)"
-  speed="$("$SAY" speed get 2>/dev/null || echo 1)"
-  pending="$("$SAY" pending get 2>/dev/null || echo 0)"
+  while IFS='=' read -r k v; do
+    case "$k" in
+      status) status="$v" ;;
+      playing) playing="$v" ;;
+      rem) rem="$v" ;;
+      engine) engine="$v" ;;
+      speed) speed="$v" ;;
+      vol) vol="$v" ;;
+      pending) pending="$v" ;;
+      apple_voice) apple_voice="$v" ;;
+      pocket_voice) pocket_voice="$v" ;;
+    esac
+  done < <("$SAY" snapshot 2>/dev/null || true)
 fi
 
 engine_label="Fast"
 if [[ "$engine" == "pocket" ]]; then
   engine_label="Slow"
 fi
-vol_label="system"
-if [[ -n "${vol:-}" ]]; then
-  vol_label="${vol}%"
-fi
+vol_label="${vol:-system}"
 queue_label=""
 if [[ "${pending:-0}" != "0" ]]; then
   queue_label=", q${pending}"
