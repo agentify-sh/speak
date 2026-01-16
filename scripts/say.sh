@@ -66,7 +66,8 @@ if [[ -n "${VOICE_PERSISTED:-}" ]]; then
 else
   VOICE="$VOICE_DEFAULT"
 fi
-RATE="${CODEX_SAY_RATE:-420}"
+BASE_RATE="${CODEX_SAY_BASE_RATE:-315}"
+RATE="${CODEX_SAY_RATE:-$BASE_RATE}"
 SPEED_FILE="$RUNTIME_DIR/say.speed"
 SPEED_DEFAULT="${CODEX_SAY_SPEED:-1.0}"
 SPEED_PERSISTED="$(cat "$SPEED_FILE" 2>/dev/null || true)"
@@ -248,6 +249,17 @@ v=int(sys.argv[1])
 g=(max(0.0,min(100.0,float(v)))/100.0)**2
 print(f"{g:.3f}")
 ' "$v" 2>/dev/null || echo "1.0"
+}
+
+compute_rate_from_speed() {
+  if [[ -n "${CODEX_SAY_RATE:-}" ]]; then
+    return 0
+  fi
+  RATE="$(python3 -c 'import sys
+base=float(sys.argv[1]); speed=float(sys.argv[2])
+speed=max(0.5,min(2.5,speed))
+print(int(round(base*speed)))
+' "$BASE_RATE" "$SPEED" 2>/dev/null || echo "$BASE_RATE")"
 }
 
 have_cmd() {
@@ -489,6 +501,8 @@ v=max(0.5,min(2.5,v))
 print(f"{v:.2f}".rstrip("0").rstrip("."))
 ' "$s" 2>/dev/null || echo "1.0")"
   printf '%s\n' "$s" > "$SPEED_FILE" 2>/dev/null || true
+  SPEED="$s"
+  compute_rate_from_speed >/dev/null 2>&1 || true
   echo "$s"
 }
 
@@ -852,6 +866,22 @@ case "$subcmd" in
       exit 0
     fi
     pending_get
+    exit 0
+    ;;
+  pocket-speed|pocket_speed)
+    action="${2:-get}"
+    if [[ "$action" == "reset" ]]; then
+      : > "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true
+      echo "reset"
+      exit 0
+    fi
+    v="$(cat "$POCKET_SPEED_FLAG_FILE" 2>/dev/null || true)"
+    v="${v//$'\n'/}"
+    if [[ -z "${v:-}" ]]; then
+      echo "unknown"
+    else
+      echo "$v"
+    fi
     exit 0
     ;;
   speed)

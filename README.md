@@ -84,6 +84,7 @@ Then in SwiftBar (or terminal) select `Engine: pocket`.
 Pocket TTS caveats:
 - This project controls Pocket volume via the audio player (`afplay -v`), not system volume.
 - Speed is exposed via `~/.codex/say.sh speed …` and SwiftBar. For Pocket TTS this is best-effort: the script will pass `--speed`/`--rate` only if the installed `pocket-tts` CLI supports it.
+- You can force a re-detect of Pocket speed flag support via `~/.codex/say.sh pocket-speed reset`.
 
 ## License
 

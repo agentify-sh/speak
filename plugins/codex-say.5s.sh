@@ -107,3 +107,8 @@ echo "1.75x | bash=\"$SAY\" param1=\"speed\" param2=\"1.75\" terminal=false refr
 echo "2.0x | bash=\"$SAY\" param1=\"speed\" param2=\"2.0\" terminal=false refresh=true"
 echo "Faster | bash=\"$SAY\" param1=\"speed\" param2=\"up\" terminal=false refresh=true"
 echo "Slower | bash=\"$SAY\" param1=\"speed\" param2=\"down\" terminal=false refresh=true"
+
+echo "---"
+echo "Pocket speed flag | color=gray"
+echo "Show | bash=\"$SAY\" param1=\"pocket-speed\" param2=\"get\" terminal=true"
+echo "Re-detect | bash=\"$SAY\" param1=\"pocket-speed\" param2=\"reset\" terminal=false refresh=true"
