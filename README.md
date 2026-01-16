@@ -22,6 +22,12 @@ SWIFTBAR_PLUGIN_DIR="$HOME/Documents/SwiftBar" ./install.sh
 
 # Skip installing SwiftBar (installer prints instructions instead)
 INSTALL_SWIFTBAR=0 ./install.sh
+
+# Skip installing uv (required for Pocket TTS via `uvx`)
+INSTALL_UV=0 ./install.sh
+
+# (Optional) warm Pocket TTS deps into uv cache
+WARM_POCKET_TTS=1 ./install.sh
 ```
 
 ## SwiftBar Install
@@ -44,6 +50,11 @@ Terminal controls:
 ~/.codex/say.sh replay        # replay last spoken summary
 ~/.codex/say.sh replay-full   # replay full last response
 ~/.codex/say.sh stop          # stop speech
+
+# Optional engines
+~/.codex/say.sh engine apple  # use macOS `say` (default)
+~/.codex/say.sh engine pocket # use Pocket TTS if installed (falls back to Apple if missing)
+~/.codex/say.sh pocket-voice alba
 ```
 
 SwiftBar:
@@ -53,7 +64,26 @@ SwiftBar:
 ## Notes
 
 - Speech reads an intelligent summary by default: skips code blocks, truncates very long IDs/identifiers, and stops before a `Test/Tests/Testing` section.
+- Volume is speech-only by default (system volume unchanged): audio is generated to a single cached file and overwritten each time (no disk growth).
+- Parallel turn completions are handled: if Codex finishes again while already speaking, it queues “latest” and will replay after the current speech ends.
 - No credentials are stored; only the last response text and playback state.
+
+## Pocket TTS (optional)
+
+This project can use Kyutai Pocket TTS as an alternative engine.
+
+Install `uv`, then:
+
+```bash
+uvx pocket-tts generate --help
+uvx pocket-tts serve
+```
+
+Then in SwiftBar (or terminal) select `Engine: pocket`.
+
+Pocket TTS caveats:
+- This project controls Pocket volume via the audio player (`afplay -v`), not system volume.
+- Speed is exposed via `~/.codex/say.sh speed …` and SwiftBar. For Pocket TTS this is best-effort: the script will pass `--speed`/`--rate` only if the installed `pocket-tts` CLI supports it.
 
 ## License
 

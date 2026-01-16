@@ -19,6 +19,8 @@ SWIFTBAR_APP="/Applications/SwiftBar.app"
 SWIFTBAR_PLUGIN_DIR="${SWIFTBAR_PLUGIN_DIR:-"${SWIFTBAR_PLUGIN_DIR:-"$HOME/Documents/SwiftBar"}"}"
 PLUGIN_DST="$SWIFTBAR_PLUGIN_DIR/codex-say.5s.sh"
 INSTALL_SWIFTBAR="${INSTALL_SWIFTBAR:-1}"
+INSTALL_UV="${INSTALL_UV:-1}"
+WARM_POCKET_TTS="${WARM_POCKET_TTS:-0}"
 
 mkdir -p "$CODEX_HOME"
 mkdir -p "$SWIFTBAR_PLUGIN_DIR"
@@ -29,12 +31,49 @@ chmod +x "$SAY_DST"
 cp -f "$ROOT_DIR/plugins/codex-say.5s.sh" "$PLUGIN_DST"
 chmod +x "$PLUGIN_DST"
 
-# Install SwiftBar if missing (best effort).
-if [[ ! -d "$SWIFTBAR_APP" ]]; then
-  if [[ "$INSTALL_SWIFTBAR" == "1" ]] && command -v brew >/dev/null 2>&1; then
+ensure_brew() {
+  command -v brew >/dev/null 2>&1
+}
+
+install_swiftbar_if_missing() {
+  if [[ -d "$SWIFTBAR_APP" ]]; then
+    return 0
+  fi
+  if [[ "$INSTALL_SWIFTBAR" != "1" ]]; then
+    return 0
+  fi
+  if ensure_brew; then
     echo "SwiftBar not found; installing via Homebrew..."
     brew install --cask swiftbar || true
+  else
+    echo "SwiftBar not found and Homebrew is missing." >&2
+    echo "Install SwiftBar: brew install --cask swiftbar" >&2
   fi
+}
+
+install_uv_if_missing() {
+  if command -v uvx >/dev/null 2>&1; then
+    return 0
+  fi
+  if [[ "$INSTALL_UV" != "1" ]]; then
+    return 0
+  fi
+  if ensure_brew; then
+    echo "uv not found; installing via Homebrew..."
+    brew install uv || true
+  else
+    echo "uv not found and Homebrew is missing." >&2
+    echo "Install uv: https://docs.astral.sh/uv/" >&2
+  fi
+}
+
+# Install SwiftBar if missing (best effort).
+install_swiftbar_if_missing
+install_uv_if_missing
+
+if [[ "$WARM_POCKET_TTS" == "1" ]] && command -v uvx >/dev/null 2>&1; then
+  # Best-effort warmup (downloads deps into uv cache). Safe to skip.
+  uvx pocket-tts generate --help >/dev/null 2>&1 || true
 fi
 
 # Configure SwiftBar plugin directory (so the effect is immediate).
