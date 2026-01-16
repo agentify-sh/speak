@@ -111,4 +111,4 @@ echo "Slower | bash=\"$SAY\" param1=\"speed\" param2=\"down\" terminal=false ref
 echo "---"
 echo "Pocket speed flag | color=gray"
 echo "Show | bash=\"$SAY\" param1=\"pocket-speed\" param2=\"get\" terminal=true"
-echo "Re-detect | bash=\"$SAY\" param1=\"pocket-speed\" param2=\"reset\" terminal=false refresh=true"
+echo "Note: Pocket speed is via afplay rate | color=gray"
