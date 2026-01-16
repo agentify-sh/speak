@@ -26,24 +26,33 @@ if [[ -x "$SAY" ]]; then
   pending="$("$SAY" pending get 2>/dev/null || echo 0)"
 fi
 
+engine_label="Fast"
+if [[ "$engine" == "pocket" ]]; then
+  engine_label="Slow"
+fi
+vol_label="system"
+if [[ -n "${vol:-}" ]]; then
+  vol_label="${vol}%"
+fi
+queue_label=""
+if [[ "${pending:-0}" != "0" ]]; then
+  queue_label=", q${pending}"
+fi
+
 if [[ "$status" == "enabled" && "$playing" == "playing" ]]; then
-  echo "■ SPEAKING (${rem}s, ${engine}) | color=orange bash=\"$SAY\" param1=\"toggle-play\" terminal=false refresh=true"
+  echo "■ SPEAKING (${engine_label}, ${vol_label}, ${speed}x${queue_label}) | color=orange bash=\"$SAY\" param1=\"toggle-play\" terminal=false refresh=true"
 elif [[ "$status" == "enabled" ]]; then
-  if [[ "${pending:-0}" != "0" ]]; then
-    echo "▶︎ READY (${engine}, queued ${pending}) | color=yellow bash=\"$SAY\" param1=\"toggle-play\" terminal=false refresh=true"
-  else
-    echo "▶︎ READY (${engine}) | color=yellow bash=\"$SAY\" param1=\"toggle-play\" terminal=false refresh=true"
-  fi
+  echo "▶︎ READY (${engine_label}, ${vol_label}, ${speed}x${queue_label}) | color=yellow bash=\"$SAY\" param1=\"toggle-play\" terminal=false refresh=true"
 else
-  echo "SPEAK: OFF (click to enable) | color=red bash=\"$SAY\" param1=\"toggle\" terminal=false refresh=true"
+  echo "SPEAK: OFF | color=red bash=\"$SAY\" param1=\"toggle\" terminal=false refresh=true"
 fi
 
 echo "---"
 echo "Voice | color=gray"
 if [[ "$engine" == "apple" ]]; then
-  echo "Current: ${apple_voice} (Apple) | color=gray"
+  echo "Current: ${apple_voice} (Fast) | color=gray"
 else
-  echo "Current: ${pocket_voice} (Pocket) | color=gray"
+  echo "Current: ${pocket_voice} (Slow) | color=gray"
 fi
 echo "List Apple Voices | bash=\"$SAY\" param1=\"voice\" param2=\"list\" terminal=true"
 
@@ -53,16 +62,16 @@ for v in Alex Samantha Daniel Fred; do
   if [[ "$engine" == "apple" && "$apple_voice" == "$v" ]]; then
     prefix="✓ "
   fi
-  echo "${prefix}${v} (Apple) | bash=\"$SAY\" param1=\"select\" param2=\"apple\" param3=\"$v\" terminal=false refresh=true"
+  echo "${prefix}${v} (Fast) | bash=\"$SAY\" param1=\"select\" param2=\"apple\" param3=\"$v\" terminal=false refresh=true"
 done
 
-echo "Pocket TTS | color=gray"
+echo "Slow (Pocket TTS) | color=gray"
 for v in alba marius javert jean fantine cosette eponine azelma; do
   prefix=""
   if [[ "$engine" == "pocket" && "$pocket_voice" == "$v" ]]; then
     prefix="✓ "
   fi
-  echo "${prefix}${v} (Pocket) | bash=\"$SAY\" param1=\"select\" param2=\"pocket\" param3=\"$v\" param4=\"--preview\" terminal=false refresh=true"
+  echo "${prefix}${v} (Slow) | bash=\"$SAY\" param1=\"select\" param2=\"pocket\" param3=\"$v\" terminal=false refresh=true"
 done
 
 echo "---"
@@ -107,8 +116,3 @@ echo "1.75x | bash=\"$SAY\" param1=\"speed\" param2=\"1.75\" terminal=false refr
 echo "2.0x | bash=\"$SAY\" param1=\"speed\" param2=\"2.0\" terminal=false refresh=true"
 echo "Faster | bash=\"$SAY\" param1=\"speed\" param2=\"up\" terminal=false refresh=true"
 echo "Slower | bash=\"$SAY\" param1=\"speed\" param2=\"down\" terminal=false refresh=true"
-
-echo "---"
-echo "Pocket speed flag | color=gray"
-echo "Show | bash=\"$SAY\" param1=\"pocket-speed\" param2=\"get\" terminal=true"
-echo "Note: Pocket speed is via afplay rate | color=gray"
